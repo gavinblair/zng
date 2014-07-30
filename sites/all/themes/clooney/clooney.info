@@ -1,0 +1,10 @@
+name = Clooney
+description = Clooney Base Theme
+core = 7.x
+stylesheets[all][] = font-awesome/css/font-awesome.min.css
+scripts[] = js/prefixfree.min.js
+scripts[] = js/script.js
+
+plugins[panels][layouts] = layouts
+
+engine = phptemplate

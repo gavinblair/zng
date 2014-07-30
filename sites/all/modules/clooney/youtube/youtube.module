@@ -1,0 +1,51 @@
+<?php
+//Implementation of hook init()
+//
+
+
+drupal_add_js(array('youtube' => array(
+	'youtube_videocode' => variable_get('youtube_videocode', 'n1MFgGxxuFI'),
+  'youtube_gif' => variable_get('youtube_gif', '/sites/all/themes/clooney/site_rtraction/img/godzilla.gif'),
+	'youtube_startseconds' => variable_get('youtube_startseconds', 0),
+)), 'setting');
+
+
+function youtube_menu() {
+  $items = array();
+  $items['admin/settings/youtube'] = array(
+    'title' => 'YouTube module settings',
+    'description' => '',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('youtube_admin'),
+    'access arguments' => array('administer youtube settings'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+  return $items;
+}
+
+//settings form
+function youtube_admin() {
+  $form = array();
+  $form['youtube_videocode'] = array(
+    '#type' => 'textfield',
+    '#title' => t('YouTube video code'),
+    '#default_value' => variable_get('youtube_videocode', 'n1MFgGxxuFI'),
+    '#description' => t("The YouTube video code to display, eg. n1MFgGxxuFI"),
+    '#required' => TRUE,
+  );
+  $form['youtube_gif'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Replacement gif'),
+    '#default_value' => variable_get('youtube_gif', '/sites/all/themes/clooney/site_rtraction/img/godzilla.gif'),
+    '#description' => t("The gif that will be displayed for mobile users."),
+    '#required' => TRUE,
+  );
+  $form['youtube_startseconds'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Seconds to start at'),
+    '#default_value' => variable_get('youtube_startseconds', 0),
+    '#description' => t("The number of seconds to start the video at."),
+    '#required' => TRUE,
+  );
+  return system_settings_form($form);
+}

@@ -1,0 +1,7 @@
+name = IMCE Image Style
+description = Setting image style for IMCE uploaded images.
+core = "7.x"
+package = Media
+
+dependencies[] = image
+dependencies[] = imce

@@ -1,0 +1,22 @@
+form#weinre-admin-config-form h3 {
+  color: #f00;
+}
+
+a#weinre-logo {
+  background: url(../images/icons.png);
+  bottom: 10px;
+  height: 42px;
+  position: fixed;
+  right: 10px;
+  text-indent: -9999px;
+  width: 125px;
+  z-index: 9999;
+}
+
+a#weinre-logo.server-listening {
+  background-position: 0px -52px;
+}
+
+a#weinre-logo.server-not-listening {
+  background-position: 0px 0px;
+}

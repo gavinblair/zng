@@ -1,0 +1,13 @@
+<?php
+
+function manager_role_install(){
+	$newUser = array(
+		'name' => 'manager',
+		'pass' => 'rtract1on', // note: do not md5 the password
+		'mail' => 'blackhole+manager@rtraction.com',
+		'status' => 1,
+		'init' => 'blackhole+manager@rtraction.com',
+		'roles' => array( 3 => 'manager' )
+	);
+	user_save(null, $newUser);
+}

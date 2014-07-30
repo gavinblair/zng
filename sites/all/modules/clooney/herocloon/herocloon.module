@@ -1,0 +1,152 @@
+<?php
+
+function herocloon_permission() {
+  return array(
+	    'access herocloon fields' => array(
+	      'title' => t('Access All Herocloon Fields'), 
+	      'description' => t('Access all herocloon fields'),
+    )
+  );
+}
+
+/**
+ * @implements hook_ctools_plugin_directory()
+ * @param string $owner
+ * @param string $plugin_type
+ */
+function herocloon_ctools_plugin_directory($owner, $plugin_type) {
+	if ($owner == 'ctools' && $plugin_type == 'content_types') {
+		return 'plugins/' . $plugin_type;
+	}
+}
+
+/**
+ * @implements hook_theme
+ */
+function herocloon_theme () {
+  $items = array();
+  
+  $items['herocloon_hero'] = array(
+    'template' => 'hero',
+    'variables' => array()
+  );
+    
+  return $items;
+}
+
+/**
+ * An edit form for the pane's settings.
+ * @param array $form The current form definition
+ * @param array $form_state The way the the form currently is
+ * @return array the form
+ */
+function herocloon_pane_custom_pane_edit_form($form, &$form_state) {
+
+  $conf = $form_state['conf'];
+
+ if( user_access('access herocloon fields') ){
+ 	
+	  $form['bgimage'] = array(
+	    '#type' => 'managed_file',
+	    '#name' => 'bgimage',
+	    '#title' => t('Background Image'),
+	    '#upload_location' => 'public://',
+	    '#default_value' => $conf['bgimage']
+	  );
+	  
+	  $form['overlay'] = array(
+	    '#type' => 'managed_file',
+	    '#name' => 'overlay',
+	    '#title' => t('Overlay Image'),
+	    '#upload_location' => 'public://',
+	    '#default_value' => $conf['overlay']
+	  );
+	
+	  $form['bgfixed'] = array(
+	    '#type' => 'checkbox',
+	    '#title' => t('Fixed Background'),
+	    '#description' => t('Should the background image stay fixed when the user scrolls?'),
+	    '#default_value' => $conf['bgfixed']
+	  );
+	  
+	  $form['bgcolor'] = array(
+	    '#type' => 'textfield',
+	    '#title' => t('Background Colour'),
+	    '#description' => t('Hex value of the desired background colour.'),
+	    '#default_value' => $conf['bgcolor']
+	  );
+	  $form['textcolor'] = array(
+	    '#type' => 'textfield',
+	    '#title' => t('Text Colour'),
+	    '#description' => t('Hex value of the desired text colour.'),
+	    '#default_value' => $conf['textcolor']
+	  );
+	
+	  $form['fullheight'] = array(
+	    '#type' => 'checkbox',
+	    '#title' => t('Full Height'),
+	    '#description' => t('Should this section be the full height of the browser?'),
+	    '#default_value' => $conf['fullheight']
+	  );
+	
+	  $form['scrolldown'] = array(
+	    '#type' => 'checkbox',
+	    '#title' => t('Scroll Down Button'),
+	    '#description' => t('Should a Scroll Down button be provided?'),
+	    '#default_value' => $conf['scrolldown']
+	  );
+  }
+  
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Big Text'),
+    '#description' => t(''),
+    '#default_value' => $conf['title']
+  );
+ 
+  $form['body'] = array(
+    '#type' => 'text_format',
+    '#format' => NULL,
+    '#title' => 'Hero Unit Text',
+    '#default_value' => isset($conf['body']['value']) ? $conf['body']['value'] : '',
+    '#description' => 'HTML allowed'
+  );
+  
+
+  
+  return $form;
+}
+
+/**
+ * Submit function, note anything in the formstate[conf] automatically gets saved
+ * Notice, the magic that automatically does that for you.
+ * @param array $form
+ * @param array $form_state
+ * @return void
+ */
+function herocloon_pane_custom_pane_edit_form_submit(&$form, &$form_state) {
+    global $user;
+    if (isset($form_state['values']['bgimage']) && $form_state['values']['bgimage']) {
+	$file = file_load($form_state['values']['bgimage']);
+
+	$file->status = FILE_STATUS_PERMANENT;
+	
+	file_save($file);
+	file_usage_add($file, 'user', 'user', $user->uid);
+    }
+    
+    if (isset($form_state['values']['overlay']) && $form_state['values']['overlay']) {
+	$file = file_load($form_state['values']['overlay']);
+
+	$file->status = FILE_STATUS_PERMANENT;
+	
+	file_save($file);
+	file_usage_add($file, 'user', 'user', $user->uid);
+    }
+
+    foreach (array_keys($form_state['plugin']['defaults']) as $key) {
+	if (isset($form_state['values'][$key])) {
+	    $form_state['conf'][$key] = $form_state['values'][$key];
+	}
+    }
+}

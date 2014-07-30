@@ -1,0 +1,8 @@
+name = Emergency Bar
+description = Provides an Emergency Bar with a central page for editing whether or not it's shown, and its content.
+core = 7.x
+dependencies[] = ctools
+
+package = Clooney
+
+configure = admin/config/emergency

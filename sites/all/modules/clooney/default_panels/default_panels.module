@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Default Panels feature.
+ */
+
+include_once 'default_panels.features.inc';

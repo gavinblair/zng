@@ -1,0 +1,63 @@
+<?php
+
+function sheetsee_menu() {
+  $items = array();
+  $items['admin/config/sheetsee'] = array(
+    'title' => 'Configure Sheetsee Data',
+    'description' => 'Configuration for sheetsee module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sheetsee_form'),
+    'access arguments' => array('administer content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['sheetsee'] = array(
+    'page callback' => 'sheetsee_data',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/* define the settings form here */
+function sheetsee_form($form, &$form_state) {
+  $form['sheetsee_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Published Google Spreadsheet URL'),
+    '#default_value' => variable_get('sheetsee_url', ''),
+    '#description' => t('The Google Spreadsheet must be published for this to work.'),
+    '#required' => TRUE,
+  );
+  $form['sheetsee_edit_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Google Spreadsheet Edit URL'),
+    '#default_value' => variable_get('sheetsee_edit_url', ''),
+    '#description' => t('The URL to edit the spreadsheet. You must be logged into Google and have access to edit the spreadsheet for this to work.'),
+    '#required' => TRUE,
+  );
+  $form['sheetsee_embed'] = array(
+	'#markup' => "<iframe id='sheetsee_embed' src='".variable_get('sheetsee_edit_url', '')."'></iframe>"
+  );
+  $form['#submit'][] = 'sheetsee_submit';
+  return system_settings_form($form, FALSE);
+}
+
+function sheetsee_submit(){
+	//update the data
+	$url = variable_get('sheetsee_url', '');
+	if($url != '') {
+		//https://docs.google.com/spreadsheets/d/1BEvRMoHdUdRY3qRQzceqQzcwIkRnqPJoQxbdoQgtrRo/pubhtml
+		$parts = explode('/d/', $url);
+		$url = $parts[1];
+		$parts = explode('/pubhtml', $url);
+		$url = $parts[0];
+		$url = 'http://spreadsheets.google.com/feeds/list/'.$url.'/od6/public/values?alt=json';
+
+		$file= file_get_contents($url);
+		variable_set('sheetsee_data', $file);
+	
+	}
+}
+function sheetsee_data(){
+	echo variable_get('sheetsee_data', '');
+	exit(0);
+}

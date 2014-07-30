@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for weinre module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function weinre_uninstall() {
+  weinre_delete_variables();
+}
+
+/**
+ * Delete all module variables.
+ */
+function weinre_delete_variables() {
+  watchdog('weinre', 'Deleting module variables.');
+
+  db_delete('variable')->condition('name', 'weinre_%', 'LIKE')->execute();
+}

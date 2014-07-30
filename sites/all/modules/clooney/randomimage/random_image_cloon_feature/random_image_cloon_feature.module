@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Random Image Cloon Feature feature.
+ */
+
+include_once 'random_image_cloon_feature.features.inc';

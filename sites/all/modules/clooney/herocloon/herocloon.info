@@ -1,0 +1,9 @@
+name = Hero Cloon
+description = Cool slices in Clooney
+core = 7.x
+dependencies[] = ctools
+
+stylesheets[all][] = hero.css
+
+package = Clooney
+project = herocloon

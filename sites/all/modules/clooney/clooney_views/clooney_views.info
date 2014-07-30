@@ -1,0 +1,10 @@
+name = Clooney Views
+description = Extra Views options for Clooney
+core = 7.x
+dependencies[] = ctools
+dependencies[] = views
+
+project = "Clooney"
+
+files[] = views/plugins/views_plugin_style_background.inc
+files[] = views/plugins/views_plugin_row_unformatted.inc

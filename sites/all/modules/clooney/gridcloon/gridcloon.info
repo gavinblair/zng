@@ -1,0 +1,11 @@
+name = Grid Cloon
+description = Grids for Clooney
+core = 7.x
+dependencies[] = ctools
+dependencies[] = views
+
+stylesheets[all][] = grid.css
+scripts[] = grid.js
+
+package = Clooney
+project = "Clooney"

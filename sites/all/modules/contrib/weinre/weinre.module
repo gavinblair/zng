@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * @file
+ * Helper module for debugging with weinre
+ * (http://people.apache.org/~pmuellr/weinre/docs/latest/Home.html)
+ */
+
+define('WEINRE_DEFAULT_BOUND_HOST', 'localhost');
+define('WEINRE_DEFAULT_HTTP_PORT', '8080');
+define('WEINRE_DEFAULT_SERVER_CHECKING_TIMEOUT', '3');
+define('WEINRE_JS_RELATIVE_PATH', '/target/target-script-min.js');
+define('WEINRE_MAXIMUM_HTTP_PORT_VALUE', 65535);
+define('WEINRE_MODULE_CONFIGURATION_PATH', 'admin/config/development/weinre');
+
+/**
+ * Implements hook_permission().
+ */
+function weinre_permission() {
+  return array(
+    'administer weinre configuration' => array(
+      'description' => t('Allows to configure weinre debugging settings.'),
+      'title' => t('Administer weinre debugging'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function weinre_menu() {
+  $items = array();
+
+  $items[WEINRE_MODULE_CONFIGURATION_PATH] = array(
+    'title' => 'weinre debugging',
+    'description' => 'weinre configuration',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('weinre_admin_config_form'),
+    'access arguments' => array('administer weinre configuration'),
+    'file' => 'inc/weinre.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_css_alter().
+ */
+function weinre_init() {
+  module_load_include('inc', 'weinre', 'inc/weinre.common');
+
+  if (weinre_is_debugging_enabled()) {
+    drupal_add_css(drupal_get_path('module', 'weinre') . '/styles/weinre.css');
+    drupal_add_js(weinre_get_js_location(), 'external');
+  }
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function weinre_page_build(&$page) {
+  module_load_include('inc', 'weinre', 'inc/weinre.common');
+  if (weinre_is_debugging_enabled() && weinre_should_icon_be_displayed()) {
+    if (weinre_is_server_listening()) {
+      $link_title = t('weinre server is ready');
+      $class = 'server-listening';
+      $href = weinre_get_server_address();
+    }
+    else {
+      $link_title = t('weinre server is down or module is not properly configured.');
+      $class = 'server-not-listening';
+      $href = WEINRE_MODULE_CONFIGURATION_PATH;
+    }
+
+    $page['content']['weinre']['help'] = array(
+      '#weight' => -10,
+      '#markup' => l(t('Debug with weinre'), $href, array(
+        'attributes' => array(
+          'id' => 'weinre-logo',
+          'class' => array($class),
+          'title' => $link_title,
+          'target' => '_blank',
+        ),
+      )),
+    );
+  }
+}
