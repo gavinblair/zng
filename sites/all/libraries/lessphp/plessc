@@ -1,250 +1,191 @@
 #!/usr/bin/env php
 <?php
-// Command line utility to compile LESS to STDOUT
-// Leaf Corcoran <leafot@gmail.com>, 2013
 
-$exe = array_shift($argv); // remove filename
+require_once dirname(__FILE__) . '/../lib/Less/Autoloader.php';
+Less_Autoloader::register();
 
-$HELP = <<<EOT
-Usage: $exe [options] input-file [output-file]
+// Create our environment
+$env		= array('compress' => false);
+$silent		= false;
+$watch		= false;
+$rootpath	= '';
 
-Options include:
-
-    -h, --help  Show this message
-    -v          Print the version
-    -f=format   Set the output format, includes "default", "compressed"
-    -c          Keep /* */ comments in output
-    -r          Read from STDIN instead of input-file
-    -w          Watch input-file, and compile to output-file if it is changed
-    -T          Dump formatted parse tree
-    -X          Dump raw parse tree
-
-
-EOT;
-
-$opts = getopt('hvrwncXTf:', array('help'));
-while (count($argv) > 0 && preg_match('/^-([-hvrwncXT]$|[f]=)/', $argv[0])) {
-	array_shift($argv);
+// Check for arguments
+array_shift($argv);
+if (!count($argv)) {
+	$argv[] = '-h';
 }
 
-function has() {
-	global $opts;
-	foreach (func_get_args() as $arg) {
-		if (isset($opts[$arg])) return true;
-	}
-	return false;
-}
+// parse arguments
+foreach ($argv as $key => $arg) {
+	if (preg_match('/^--?([a-z][0-9a-z-]*)(?:=([^\s]+))?$/i', $arg, $matches)) {
+		$option = $matches[1];
+		$value = isset($matches[2]) ? $matches[2] : false;
+		unset($argv[$key]);
 
-if (has("h", "help")) {
-	exit($HELP);
-}
+		switch ($option) {
+			case 'h':
+			case 'help':
+				echo <<<EOD
+Usage: lessc [options] sources [destination]
 
-error_reporting(E_ALL);
-$path  = realpath(dirname(__FILE__)).'/';
+ -h, --help            Print help (this message) and exit.
+ -s, --silent          Suppress output of error messages.
+ -v, --version         Print version number and exit.
+ -x, --compress        Compress output by removing some whitespaces.
+ --include-path=PATHS  Set include paths. Separated by `:'. Use `;' on Windows.
+ --strict-imports      Force evaluation of imports.
+ -sm=on|off            Turn on or off strict math, where in strict mode, math
+ --strict-math=on|off  requires brackets. This option may default to on and then
+                       be removed in the future.
+ -su=on|off            Allow mixed units, e.g. 1px+1em or 1px*1px which have units
+ --strict-units=on|off that cannot be represented.
+ -ru, --relative-urls  re-write relative urls to the base less file.
+ -rp, --rootpath=URL   Set rootpath for url rewriting in relative imports and urls.
+                       Works with or without the relative-urls option.
+ -w, --watch           Watch input files for changes.
 
-require $path."lessc.inc.php";
 
-$VERSION = lessc::$VERSION;
+EOD;
+				exit;
+			case 's':
+			case 'silent':
+				$silent = true;
+				break;
 
-$fa = "Fatal Error: ";
-function err($msg) {
-	fwrite(STDERR, $msg."\n");
-}
+			case 'w':
+			case 'watch':
+				$watch = true;
+				break;
 
-if (php_sapi_name() != "cli") {
-	err($fa.$argv[0]." must be run in the command line.");
-	exit(1);
-}
+			case 'v':
+			case 'version':
+				echo "lessc " . Less_Version::version . " (less.php)\n\n";
+				exit;
 
-function make_less($fname = null) {
-	global $opts;
-	$l = new lessc($fname);
+			case 'rp':
+			case 'rootpath':
+				$rootpath = $value;
+				break;
 
-	if (has("f")) {
-		$format = $opts["f"];
-		if ($format != "default") $l->setFormatter($format);
-	}
 
-	if (has("c")) {
-		$l->setPreserveComments(true);
-	}
+			//parser options
+			case 'compress':
+				$env['compress'] = true;
+				break;
 
-	return $l;
-}
+			case 'ru':
+			case 'relative-urls':
+				$env['relativeUrls'] = true;
+				break;
 
-function process($data, $import = null) {
-	global $fa;
+			case 'su':
+			case 'strict-units':
+				$env['strictUnits'] = ($value === 'on');
+				break;
 
-	$l = make_less();
-	if ($import) $l->importDir = $import;
+			case 'sm':
+			case 'strict-math':
+				$env['strictMath'] = ($value === 'on');
+				break;
 
-	try {
-		echo $l->parse($data);
-		exit(0);
-	} catch (exception $ex) {
-		err($fa."\n".str_repeat('=', 20)."\n".
-			$ex->getMessage());
-		exit(1);
-	}
-}
+			case 'x':
+			case 'include-path':
+				$env['import_dirs'] = preg_split('#;|\:#', $value);
+				break;
 
-if (has("v")) {
-	exit($VERSION."\n");
-}
-
-if (has("r")) {
-	if (!empty($argv)) {
-		$data = $argv[0];
-	} else {
-		$data = "";
-		while (!feof(STDIN)) {
-			$data .= fread(STDIN, 8192);
 		}
 	}
-	exit(process($data));
 }
 
-if (has("w")) {
-	// need two files
-	if (!is_file($in = array_shift($argv)) ||
-		null == $out = array_shift($argv))
-	{
-		err($fa.$exe." -w infile outfile");
-		exit(1);
+if (count($argv) > 1) {
+	$output = array_pop($argv);
+	$inputs = $argv;
+}
+else {
+	$inputs = $argv;
+	$output = false;
+}
+
+if (!count($inputs)) {
+	echo("lessc: no input files\n");
+	exit;
+}
+
+if ($watch) {
+	if (!$output) {
+		echo("lessc: you must specify the output file if --watch is given\n");
+		exit;
 	}
 
-	echo "Watching ".$in.
-		(has("n") ? ' with notifications' : '').
-		", press Ctrl + c to exit.\n";
+	$lastAction = 0;
 
-	$cache = $in;
-	$last_action = 0;
-	while (true) {
+	echo("lessc: watching input files\n");
+
+	while (1) {
 		clearstatcache();
 
-		// check if anything has changed since last fail
 		$updated = false;
-		if (is_array($cache)) {
-			foreach ($cache['files'] as $fname=>$_) {
-				if (filemtime($fname) > $last_action) {
-					$updated = true;
-					break;
+		foreach ($inputs as $input) {
+			if ($input == '-') {
+				if (count($inputs) == 1) {
+					echo("lessc: during watching files is not possible to watch stdin\n");
+					exit;
+				}
+				else {
+					continue;
 				}
 			}
-		} else $updated = true;
 
-		// try to compile it
+			if (filemtime($input) > $lastAction) {
+				$updated = true;
+				break;
+			}
+		}
+
 		if ($updated) {
-			$last_action = time();
-
-			try {
-				$cache = lessc::cexecute($cache);
-				echo "Writing updated file: ".$out."\n";
-				if (!file_put_contents($out, $cache['compiled'])) {
-					err($fa."Could not write to file ".$out);
-					exit(1);
+			$lastAction = time();
+			$parser = new Less_Parser($env);
+			foreach ($inputs as $input) {
+				try {
+					$parser->parseFile($input, $rootpath);
 				}
-			} catch (exception $ex) {
-				echo "\nFatal Error:\n".str_repeat('=', 20)."\n".
-					$ex->getMessage()."\n\n";
-
-				if (has("n")) {
-					`notify-send -u critical "compile failed" "{$ex->getMessage()}"`;
+				catch (Exception $e) {
+					echo("lessc: " . $e->getMessage() . " \n");
+					continue; // Invalid processing
 				}
 			}
+
+			file_put_contents($output, $parser->getCss());
+			echo("lessc: output file recompilled\n");
 		}
 
 		sleep(1);
 	}
-	exit(0);
 }
-
-if (!$fname = array_shift($argv)) {
-	echo $HELP;
-	exit(1);
-}
-
-function dumpValue($node, $depth = 0) {
-	if (is_object($node)) {
-		$indent = str_repeat("  ", $depth);
-		$out = array();
-		foreach ($node->props as $prop) {
-			$out[] = $indent . dumpValue($prop, $depth + 1);
+else {
+	$parser = new Less_Parser($env);
+	foreach ($inputs as $input) {
+		if ($input == '-') {
+			$content = file_get_contents('php://stdin');
+			$parser->parse($content);
 		}
-		$out = implode("\n", $out);
-		if (!empty($node->tags)) {
-			$out = "+ ".implode(", ", $node->tags)."\n".$out;
-		}
-		return $out;
-	} elseif (is_array($node)) {
-		if (empty($node)) return "[]";
-		$type = $node[0];
-		if ($type == "block")
-			return dumpValue($node[1], $depth);
-
-		$out = array();
-		foreach ($node as $value) {
-			$out[] = dumpValue($value, $depth);
-		}
-		return "{ ".implode(", ", $out)." }";
-	} else {
-		if (is_string($node) && preg_match("/[\s,]/", $node)) {
-			return '"'.$node.'"';
-		}
-		return $node; // normal value
-	}
-}
-
-
-function stripValue($o, $toStrip) {
-	if (is_array($o) || is_object($o)) {
-		$isObject = is_object($o);
-		$o = (array)$o;
-		foreach ($toStrip as $removeKey) {
-			if (!empty($o[$removeKey])) {
-				$o[$removeKey] = "*stripped*";
+		else {
+			try {
+				$parser->parseFile($input);
+			}
+			catch (Exception $e) {
+				if (!$silent) {
+					echo("lessc: " . ((string)$e) . " \n");
+				}
 			}
 		}
-
-		foreach ($o as $k => $v) {
-			$o[$k] = stripValue($v, $toStrip);
-		}
-
-		if ($isObject) {
-			$o = (object)$o;
-		}
 	}
 
-	return $o;
-}
-
-function dumpWithoutParent($o, $alsoStrip=array()) {
-	$toStrip = array_merge(array("parent"), $alsoStrip);
-	print_r(stripValue($o, $toStrip));
-}
-
-try {
-	$less = make_less($fname);
-	if (has("T", "X")) {
-		$parser = new lessc_parser($less, $fname);
-		$tree = $parser->parse(file_get_contents($fname));
-		if (has("X"))
-			$out = print_r($tree, 1);
-		else
-			$out = dumpValue($tree)."\n";
-	} else {
-		$out = $less->parse();
+	if ($output) {
+		file_put_contents($output, $parser->getCss());
 	}
-
-	if (!$fout = array_shift($argv)) {
-		echo $out;
-	} else {
-		file_put_contents($fout, $out);
+	else {
+		echo $parser->getCss();
 	}
-
-} catch (exception $ex) {
-	err($fa.$ex->getMessage());
-	exit(1);
 }
-
-?>

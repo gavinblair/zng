@@ -4,5 +4,6 @@ description = A Clooney Sub Theme
 core = 7.x
 version = 7.1
 stylesheets[all][] = css/style.css.less
+scripts[] = js/fastclick.js
 scripts[] = js/script.js
 base theme = clooney
