@@ -286,7 +286,7 @@ p.description {
 .form-type-password label {
   position: absolute;
   left: .85rem;
-  top: .95rem;
+  top: 2rem;
 }
 .form-element {
   border: 2px solid #c3c3c6;
@@ -325,7 +325,7 @@ p.description {
   content: '';
   display: block;
   position: absolute;
-  top: 1.25em;
+  top: 3em;
   left: .75em;
   height: 16px;
   width: 16px;
@@ -371,15 +371,11 @@ p.description {
   content: '';
   display: block;
   position: absolute;
-  top: 1.25em;
+  top: 3em;
   left: .75em;
   height: 16px;
   width: 16px;
   border-radius: 2px;
-}
-.form-type-radio .form-radio + .option:before,
-.form-type-checkbox .form-radio + .option:before {
-  border-radius: 9px;
 }
 .form-type-radio:hover .option,
 .form-type-checkbox:hover .option {
@@ -411,6 +407,9 @@ p.description {
 .form-type-radio .form-radio:checked + .option:after,
 .form-type-checkbox .form-radio:checked + .option:after {
   border-radius: 6px;
+}
+.form-radio .option:before {
+  border-radius: 9px;
 }
 .form-type-radios>label,
 .form-type-checkboxes>label {
