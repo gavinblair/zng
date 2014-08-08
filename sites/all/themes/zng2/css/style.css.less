@@ -268,7 +268,7 @@ p.description {
   label {
     position: absolute;
     left: .85rem;
-    top: .95rem;
+    top: 2rem;
   }
 }
 
@@ -310,7 +310,7 @@ p.description {
   content: '';
   display: block;
   position: absolute;
-  top: 1.25em;
+  top: 3em;
   left: .75em;
   height: 16px;
   width: 16px;
@@ -351,10 +351,6 @@ p.description {
     }
   }
   
-  .form-radio + .option:before {
-    border-radius: 9px;
-  }
-  
   &:hover .option {
     background-color: lighten(@muted, 20%);
     cursor: pointer;
@@ -378,6 +374,9 @@ p.description {
     border-radius: 6px;
   }
 
+}
+.form-radio .option:before {
+  border-radius: 9px;
 }
 .form-type-radios>label,
 .form-type-checkboxes>label {
