@@ -1,0 +1,153 @@
+<?php
+/**
+ * @file
+ * Adding image styling at IMCE image uploading.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function imce_image_style_menu() {
+  $items = array();
+
+  // Admin Form.
+  $items['admin/config/media/imce_image_style'] = array(
+    'title' => 'IMCE Image Style settings',
+    'description' => 'Control what image style to use when uploading image file via IMCE.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('imce_image_style_admin_form'),
+    'access arguments' => array('administer imce image style'),
+    'file'             => 'imce_image_style.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function imce_image_style_permission() {
+  return array(
+    'administer imce image style' => array(
+      'title' => t('Settings for IMCE image styles'),
+      'description' => t('Allow administrator to set what image styles that user can use when uploading image file.'),
+      'restrict access' => TRUE,
+    ),
+  );  
+}
+
+/*
+ * Implement hook_form_FORM_ID_alter for IMCE file uploading form.
+ */
+function imce_image_style_form_imce_upload_form_alter(&$form, $form_state, $form_id) {
+  if (variable_get('imce_image_style_enable', FALSE)) {
+    $styles = image_styles();
+    $options = array();
+    foreach (variable_get('imce_image_style_preset', array()) as $preset) {
+      if ($preset) {
+        $options[$preset] = $styles[$preset]['label'];
+      }
+    }
+    if (count($options)) {
+      $form['fset_upload']['imce_image_style'] = array(
+        '#type' => 'checkboxes',
+        '#title' => t('Use image style'),
+        '#options' => $options,
+        '#weight' => 0,
+      );
+      $form['fset_upload']['upload']['#submit'][] = 'imce_image_style_upload_submit';
+    }
+  }
+}
+
+/**
+ * Add image style using user chosen image style.
+ *
+ * @param array $form
+ * @param array $form_state
+ */
+function imce_image_style_upload_submit($form, &$form_state) {
+  // Get preset name
+  $preset_name = NULL;
+  if (isset($form_state['values']['imce_image_style'])) {
+    // Find the first chosen preset from user.
+    foreach ($form_state['values']['imce_image_style'] as $style_name) {
+      if ($style_name) {
+        $preset_name = $style_name;
+        break;
+      }
+    }
+  }
+  // Check if there is any image style to set.
+  if (!variable_get('imce_image_style_enable', FALSE) || empty($preset_name)) {
+    return;
+  }
+
+  $imce =& $form_state['build_info']['args'][0]['imce'];
+
+  $fid = isset($imce['added'][0]['id']) ? $imce['added'][0]['id'] : NULL;
+  
+  if ($fid) {
+    $file = file_load($fid);
+    // Check if this is an image file.
+    $is_image = imce_image_info($file->uri);
+    if (!$is_image) {
+      return;
+    }
+    if ($file) {
+      $filepath = drupal_realpath($file->uri);
+    }
+  }
+  if (empty($filepath) || !file_exists($filepath)) {
+    watchdog('imce_image_style', 'Can\'t find image "!filepath"', array('!filepath' => $filepath), WATCHDOG_ERROR);
+    return;
+  }
+
+  // Check image style exists.
+  $style = image_style_load($preset_name);
+  if (!$style) {
+    watchdog('imce_image_style', 'Image style "!preset_name" does not exists.', array('!preset_name' => $preset_name), WATCHDOG_ERROR);
+    return;
+  }
+
+  // Check image style creation was ok.
+  $result = image_style_create_derivative($style, $filepath, $filepath);
+  if (!$result) {
+    watchdog('imce_image_style', 'Could not change image "!filepath" with image style "!preset_name"', array('!filepath' => $filepath, '!preset_name' => $preset_name), WATCHDOG_ERROR);
+  }
+  else {
+    // Update file list in IMCE.
+    $image_info = imce_image_info($file->uri);
+    $file->width = $image_info ? $image_info['width'] : 0;
+    $file->height = $image_info ? $image_info['height'] : 0;
+    $file->filesize = filesize($filepath);
+    imce_image_style_update_file($file, $imce);
+  }
+}
+
+
+/**
+ * Update info on the new file to the file list.
+ */
+function imce_image_style_update_file($file, &$imce) {
+  $imce['dirsize'] += $file->filesize;
+  if (isset($imce['files'][$file->filename])) {
+    $imce['dirsize'] -= $imce['files'][$file->filename]['size'];
+  }
+  $imce['files'][$file->filename] = array(
+    'name' => $file->filename,
+    'size' => $file->filesize,
+    'width' => $file->width,
+    'height' => $file->height,
+    'date' => $file->timestamp
+  );
+  if (isset($_GET['jsop'])) {
+    $add = $imce['files'][$file->filename];
+    $add['name'] = rawurlencode($file->filename);
+    $add['fsize'] = format_size($file->filesize);
+    $add['fdate'] = format_date($file->timestamp, 'short');
+    $add['id'] = $file->fid;
+    // Overwrite the existing file info.
+    $imce['added'][0] = $add;
+  }
+}

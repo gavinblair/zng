@@ -1,0 +1,79 @@
+<?php
+function signupcloon_init(){
+	global $theme_key;
+	if($theme_key === 'clooney') {
+		
+	}
+}
+function signupcloon_menu() {
+  $items = array();
+  $items['signup/submit'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'signupcloon_curl',
+    'page arguments' => array(''),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+   );
+  return $items;
+}
+function signupcloon_curl(){
+	//print_r($_POST); die;
+	//post $_POST to $_POST['action'] via cURL
+	$action = $_POST['action'];
+
+	//extract data from the post
+	$fieldstring = "";
+	$c = 0;
+	foreach($_POST as $key => $value) {
+		if($key !== 'action' && $key != 'already_check' && $key != 'invalid_check') {
+			$c++;
+			$fieldstring .= urlencode(filter_xss($key)) .'='. urlencode(filter_xss($value)).'&';
+		}
+	}
+	$fieldstring = rtrim($fieldstring, '&');
+	
+	//open connection
+	$ch = curl_init();
+
+	//set the url, number of POST vars, POST data
+	curl_setopt($ch,CURLOPT_URL, $action);
+	curl_setopt($ch,CURLOPT_POST, $c);
+	curl_setopt($ch,CURLOPT_POSTFIELDS, $fieldstring);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+	//execute post
+	$result = curl_exec($ch);
+
+	//close connection
+	curl_close($ch);
+
+	if(strpos($result, $_POST['already_check'])){
+		echo "already";
+	} else if(strpos($result, $_POST['invalid_check'])){
+		echo "invalid";
+	} else {
+		echo "success";
+	}
+	exit(0);
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function signupcloon_ctools_plugin_directory($owner, $plugin_type) {
+	if ($owner == 'ctools' && $plugin_type == 'content_types') {
+		return 'plugins/' . $plugin_type;
+	}
+}
+
+function signupcloon_theme () {
+  $items = array();
+  
+  $items['signupcloon_signup'] = array(
+    'template' => 'signup',
+    'variables' => array()
+  );
+    
+  return $items;
+}

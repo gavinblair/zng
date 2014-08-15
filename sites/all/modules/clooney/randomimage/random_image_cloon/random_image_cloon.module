@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function random_image_cloon_ctools_plugin_directory($owner, $plugin_type) {
+	if ($owner == 'ctools' && $plugin_type == 'content_types') {
+		return 'plugins/' . $plugin_type;
+	}
+}
+
+function random_image_cloon_theme () {
+  $items = array();
+  
+  $items['random_image_cloon'] = array(
+    'template' => 'random_image_cloon',
+    'variables' => array()
+  );
+    
+  return $items;
+}

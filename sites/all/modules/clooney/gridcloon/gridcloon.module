@@ -1,0 +1,27 @@
+<?php
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function gridcloon_ctools_plugin_directory($owner, $plugin_type) {
+	if ($owner == 'ctools' && $plugin_type == 'content_types') {
+		return 'plugins/' . $plugin_type;
+	}
+}
+
+function gridcloon_theme () {
+  $items = array();
+  
+  $items['gridcloon_grid'] = array(
+    'template' => 'grid',
+    'variables' => array()
+  );
+    
+  return $items;
+}
+function gridcloon_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'gridcloon'),
+    'template path' => drupal_get_path('module', 'gridcloon'),
+  );
+}

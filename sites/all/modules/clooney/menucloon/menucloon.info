@@ -1,0 +1,10 @@
+name = Menu Cloon
+description = Options for displaying the main menu in Clooney.
+core = 7.x
+dependencies[] = ctools
+
+stylesheets[all][] = menu.css
+scripts[] = menucloon.js
+
+package = Clooney
+project = menu_cloon

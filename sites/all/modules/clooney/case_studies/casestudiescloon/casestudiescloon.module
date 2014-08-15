@@ -1,0 +1,27 @@
+<?php
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function casestudiescloon_ctools_plugin_directory($owner, $plugin_type) {
+	if ($owner == 'ctools' && $plugin_type == 'content_types') {
+		return 'plugins/' . $plugin_type;
+	}
+}
+
+function casestudiescloon_theme () {
+  $items = array();
+  
+  $items['casestudiescloon_casestudies'] = array(
+    'template' => 'casestudies',
+    'variables' => array()
+  );
+    
+  return $items;
+}
+function casestudiescloon_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'casestudiescloon'),
+    'template path' => drupal_get_path('module', 'casestudiescloon'),
+  );
+}

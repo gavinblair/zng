@@ -1,0 +1,27 @@
+<?php
+
+function gamelogin_menu(){
+  $items['gamelogin'] = array(
+    'page callback' => 'gamelogin_gamelogin',
+    'type' => MENU_CALLBACK,
+    'access callback' => true
+  );
+  return $items;
+}
+function gamelogin_gamelogin() {
+	$email = str_replace(' ', '+', $_POST['u']);
+	$password = $_POST['p'];
+	$role = $_POST['r'];
+	$m = user_load_by_mail($email);
+
+	$uid = user_authenticate($m->name, $password);
+	if($uid) {
+		$u = user_load($uid);
+		if(in_array($role, $u->roles)){
+			echo json_encode(array('loggedin' => 'true'));
+			exit(0);
+		}
+	}
+	echo json_encode(array('loggedin' => 'false'));
+	exit(0);
+}

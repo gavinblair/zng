@@ -1,0 +1,10 @@
+name = Signup Cloon
+description = Newsletter Signup Panel
+core = 7.x
+dependencies[] = ctools
+
+stylesheets[all][] = signup.css
+scripts[] = signup.js
+
+package = Clooney
+project = "Clooney"

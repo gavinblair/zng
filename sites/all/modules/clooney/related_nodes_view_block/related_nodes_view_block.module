@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Related Nodes View Block feature.
+ */
+
+include_once 'related_nodes_view_block.features.inc';

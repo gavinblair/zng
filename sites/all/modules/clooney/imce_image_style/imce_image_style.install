@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Installs, updates, and uninstalls Debitoor IMCE Image Style.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function imce_image_style_uninstall() {
+  variable_del('imce_image_style_enable');
+  variable_del('imce_image_style_preset');
+}

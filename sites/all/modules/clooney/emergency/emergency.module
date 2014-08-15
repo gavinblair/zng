@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function emergency_ctools_plugin_directory($owner, $plugin_type) {
+	if ($owner == 'ctools' && $plugin_type == 'content_types') {
+		return 'plugins/' . $plugin_type;
+	}
+}
+
+function emergency_theme () {
+  $items = array();
+  
+  $items['emergency_panel'] = array(
+    'template' => 'emergency',
+    'variables' => array()
+  );
+    
+  return $items;
+}
+
+function emergency_menu() {
+  $items = array();
+  $items['admin/config/emergency'] = array(
+    'title' => 'Configure Emergency Banner',
+    'description' => 'Configuration for Emergency module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('emergency_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/* define the settings form here */
+function emergency_form($form, &$form_state) {
+  $ec = variable_get('emergency_content', '');
+  $form['emergency_content'] = array(
+    '#type' => 'text_format',
+    '#title' => t('Emergency Message Content'),
+    '#default_value' => isset($ec['value']) ? $ec['value'] : '',
+    '#format' => isset($ec['format']) ? $ec['format'] : 'full_html',
+    '#description' => t('Content for the alert bar.'),
+    '#required' => FALSE,
+  );
+  return system_settings_form($form, FALSE);
+}

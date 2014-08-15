@@ -1,0 +1,94 @@
+<?php
+
+function clooney_views_views_api() {
+  return array(
+    'api' => 2.0
+  );
+}
+
+
+/**
+* Display the simple view of rows one after another
+*/
+function template_preprocess_views_view_background(&$vars) {
+  $view = $vars['view'];
+  $rows = $vars['rows'];
+  $style = $view->style_plugin;
+  $options = $style->options;
+  //echo "<pre>"; print_r($view); die;
+  $vars['classes_array'] = array();
+  $vars['classes'] = array();
+  $default_row_class = isset($options['default_row_class']) ? $options['default_row_class'] : FALSE;
+  $row_class_special = isset($options['row_class_special']) ? $options['row_class_special'] : FALSE;
+  // Set up striping values.
+  $count = 0;
+  $max = count($rows);
+  $vars['backgrounds'] = array();
+
+  foreach ($rows as $id => $row) {
+    $count++;
+    if ($default_row_class) {
+      $vars['classes'][$id][] = 'views-row';
+      $vars['classes'][$id][] = 'views-row-' . $count;
+    }
+    //echo "<pre>"; print_r($view->result[$id]); die;//->{'field_'.$options['background_field']}); die;
+    $field = 'field_'.$options['background_field'];
+    if(isset($view->result[$id]->{$field}[0]['rendered']['#path']['path'])){
+      $vars['backgrounds'][$id] = $view->result[$id]->{$field}[0]['rendered']['#path']['path'];
+    } else {
+      $vars['backgrounds'][$id] = file_create_url($view->result[$id]->{$field}[0]['rendered']['#item']['uri']);
+    }
+    if ($row_class_special) {
+      $vars['classes'][$id][] = 'views-row-' . ($count % 2 ? 'odd' : 'even');
+      if ($count == 1) {
+        $vars['classes'][$id][] = 'views-row-first';
+      }
+      if ($count == $max) {
+        $vars['classes'][$id][] = 'views-row-last';
+      }
+    }
+
+    if ($row_class = $view->style_plugin->get_row_class($id)) {
+      $vars['classes'][$id][] = $row_class;
+    }
+    if($options['row_class']){
+      $vars['classes'][$id][] = $options['row_class'];
+    }
+
+    // Flatten the classes to a string for each row for the template file.
+    $vars['classes_array'][$id] = isset($vars['classes'][$id]) ? implode(' ', $vars['classes'][$id]) : '';
+  }
+}
+
+/**
+*  Found this trick on theoleschool.com.
+*  
+*  Description: Allows the view developer to specify the query
+*  group by action in the query comments. Great way to force the
+*  removal of duplicates.
+*  
+*  Just go into your query comments and type in "groupby:" with
+*  that colon followed by the field you want to group by.
+* 
+*  Examples...
+*  groupby:node.nid
+*  groupby:file_managed_file_usage.fid
+* 
+*  Ref-Comment: http://theoleschool.com/comment/496#comment-496
+*  Ref-Article: http://theoleschool.com/blog/using-hookviewsalter-add-group-statement
+*/
+function clooney_views_query_alter(QueryAlterableInterface $query) {
+  if ($query->hasTag('views')) {
+    static $count;
+    $q = $query->getMetaData('view');
+    $view =& $q;
+
+    if (strstr($groupby = $view->query->options['query_comment'], 'groupby')) {
+      list($action, $field) = explode(':', $groupby);
+
+      if (strlen($field) > 0) {
+        $query->groupBy($field);
+      }
+    }
+  }
+}

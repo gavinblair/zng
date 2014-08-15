@@ -1,0 +1,43 @@
+.pane-herocloon-custom-pane .front h1#page-title {
+    display: none;
+}
+.pane-herocloon-custom-pane .vert-text {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+.pane-herocloon-custom-pane .header {
+    display: table;
+    height: 100vh;
+    width: 100%;
+    position: relative;
+}
+.pane-herocloon-custom-pane .header,
+.pane-herocloon-custom-pane .intro {
+    background-repeat: no-repeat;
+    background-position: center center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+.pane-herocloon-custom-pane .bgfixed {
+    background-attachment: fixed;
+}
+.pane-herocloon-custom-pane .intro {
+    padding: 50px 0;
+}
+
+.pane-herocloon-custom-pane .hero-cloon-overlay{
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+
+    .pane-herocloon-custom-pane .header {
+        background: no-repeat center center scroll; 
+        height: 445px;
+    }
+
+}

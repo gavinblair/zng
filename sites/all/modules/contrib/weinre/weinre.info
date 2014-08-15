@@ -1,0 +1,12 @@
+name = weinre
+description = Helper module for debuggin with <a href="http://people.apache.org/~pmuellr/weinre/docs/latest/Home.html" title="weinre home page">weinre</a>
+package = Development
+core = 7.x
+configure = admin/config/development/weinre
+
+; Information added by drupal.org packaging script on 2013-05-21
+version = "7.x-1.0-alpha4"
+core = "7.x"
+project = "weinre"
+datestamp = "1369165217"
+

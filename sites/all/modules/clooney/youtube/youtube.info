@@ -1,0 +1,10 @@
+name = YouTube Background
+description = Replace the background of a .superhero classed Hero unit with a YouTube video (or gif for mobile)
+core = 7.x
+dependencies[] = herocloon
+
+stylesheets[all][] = youtube.css
+scripts[] = youtube.js
+
+package = Clooney
+project = "Clooney"

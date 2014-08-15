@@ -1,0 +1,37 @@
+body{
+	-webkit-font-smoothing: antialiased;
+	margin: 0;
+}
+.edit-css{
+  height: 500px;
+  display: block;
+}
+@media (max-width: 550px) {
+	.row .btn-primary {
+		padding: 14px 28px;
+	}
+}
+@media (max-width: 550px) {
+	.row .btn-primary{
+		padding: .5em;
+	}
+}
+.btn, img {
+	max-width: 100%;
+}
+
+#content {
+	background: #fff;
+}
+
+.tabs {
+	background: #fff;
+	margin: 0;
+	padding: 0;
+}
+ul.tabs{
+	padding: 20px; 
+}
+.pane-content {
+	overflow: hidden;
+}

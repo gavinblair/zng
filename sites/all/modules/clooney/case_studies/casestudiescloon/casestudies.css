@@ -1,0 +1,155 @@
+.casestudies {
+	overflow:hidden;
+	position:relative;
+	height:1032px;
+}
+
+.casectrl {
+	position:absolute;
+	left:50%;
+	top:112px;
+	z-index:10;
+	float:left;
+	padding-left:0;
+}
+
+.casectrl li {
+	list-style:none;
+	float:left;
+	margin-right:15px;
+}
+
+.casectrl li a {
+	cursor: pointer;
+}
+.casectrl li a.active {
+	font-weight: bold;
+}
+
+.caseslider {
+	position:relative;
+	-webkit-transition:.5s ease-in-out;
+	transition:.5s ease-in-out;
+	width:615%;
+	padding-left:0;
+	-webkit-transform:translate3d(0px,0px,0px);
+	/* second slide -webkit-transform: translate3d(-1277px, 0px, 0px); */
+	/* third slide -webkit-transform: translate3d(-2554px, 0px, 0px); */
+	/* fourth slide -webkit-transform: translate3d(-3831px, 0px, 0px); */
+}
+
+.caseslider li {
+	float:left;
+	list-style:none;
+	position:relative;
+	width:100vw;
+	overflow:hidden;
+}
+
+.caseslider li section {
+	height:1032px;
+	background:#fff;
+}
+.caseslider li {
+	max-width: 100%;
+}
+.holder {
+	width:1104px;
+	margin:0 auto;
+}
+
+.caseslider .bg {
+	position:absolute;
+	height:1032px;
+	width:450px;
+}
+
+.caseslider .bg div {
+	position:absolute;
+	background-repeat:no-repeat;
+	background-size:cover;
+	background-position:center center;
+	right:0;
+	height:100%;
+	width:1180px;
+	margin:0;
+	opacity:0;
+	-webkit-transition:1s;
+	-moz-transition:1s;
+	-ms-transition:1s;
+	-o-transition:1s;
+	transition:1s;
+}
+
+.visible {
+	opacity:1!important;
+}
+
+.caseslider .cont {
+	padding-top:235px;
+	width:560px;
+	margin-left:550px;
+}
+
+.caseslider .cont h1 {
+	margin-bottom:50px;
+}
+
+.caseslider p {
+	font-size:20px;
+	line-height:36px;
+	color:#505656;
+	margin-bottom:24px;
+}
+
+.caseslider img {
+	max-height:120px;
+}
+
+@media (max-width: 1111px) {
+	.caseslider .bg {
+		position:static;
+		height:360px;
+		width:100%;
+	}
+
+	.caseslider .bg div {
+		position:static;
+		width:100%;
+		height:100%;
+	}
+
+	.casectrl {
+		top:390px;
+		margin-left: -50px;
+	}
+
+	.caseslider .cont {
+		padding-top: 95px;
+		width: 700px;
+		margin: 0 auto;
+	}
+}
+@media (max-width: 970px) {
+	.caseslider {
+		width: auto !important;
+	}
+	.holder {
+		width: 100vw;
+	}
+	.casectrl {
+		display: none;
+	}
+	.caseslider .cont {
+		padding-top: 3em;
+		width: 90%;
+	}
+	.casestudies {
+		height: auto !important;
+	}
+	.caseslider li section {
+		height: auto;
+		padding-bottom: 3em;
+	}
+
+}

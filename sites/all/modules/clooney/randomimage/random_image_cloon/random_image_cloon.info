@@ -1,0 +1,9 @@
+name = Random Image Cloon
+description = Similar to the hero cloon, but uses a view to pick a random image
+core = 7.x
+dependencies[] = ctools
+
+stylesheets[all][] = random_image_cloon.css
+
+package = Clooney
+project = "Clooney"

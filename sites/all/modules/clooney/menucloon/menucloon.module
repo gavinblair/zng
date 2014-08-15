@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function menucloon_ctools_plugin_directory($owner, $plugin_type) {
+	if ($owner == 'ctools' && $plugin_type == 'content_types') {
+		return 'plugins/' . $plugin_type;
+	}
+}
+
+function menucloon_theme () {
+  $items = array();
+  
+  $items['menucloon_menu'] = array(
+    'template' => 'menu',
+    'variables' => array()
+  );
+    
+  return $items;
+}

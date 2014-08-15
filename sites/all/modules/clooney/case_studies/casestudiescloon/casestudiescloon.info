@@ -1,0 +1,11 @@
+name = Case Studies Cloon
+description = An article slider panel for Clooney
+core = 7.x
+dependencies[] = ctools
+dependencies[] = case_studies
+
+stylesheets[all][] = casestudies.css
+scripts[] = casestudies.js
+
+package = Clooney
+project = "Clooney"

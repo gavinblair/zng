@@ -1,0 +1,8 @@
+name = Sheetsee
+description = Use a Google Docs spreadsheet to manage some data that can be used with Javascript
+core = 7.x
+
+stylesheets[all][] = sheetsee.css
+
+package = Clooney
+project = sheetsee
