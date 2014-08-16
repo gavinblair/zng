@@ -601,11 +601,11 @@ ul.primary li {
     font-size: 20px;
     font-weight: bold;
   }
-  &:first-child .eptitle {
+  /*&:first-child .eptitle {
     width: 400px;
     text-align: left;
     margin: -35px auto 0 auto;
-  }
+  }*/
   &:first-child .eptitle.center {
     width: auto;
     text-align: center;
@@ -649,4 +649,20 @@ iframe {
 
 .pane-custom span.secondary {
   word-break: break-word;
+}
+input.password-field {
+  width: 100%;
+}
+div.form-item div.password-suggestions {
+  border: none;
+  visibility: hidden;
+  display: none;
+}
+.password-strength,
+#edit-timezone,
+.password-suggestions+.description {
+  display: none !important;
+}
+.password-parent {
+  width: auto;
 }
